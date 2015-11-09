@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="from"
+        android:title="From Station"
+        android:summary="Station from where the journey leg starts"
+        android:dialogTitle="Station from where the journey leg starts"
+        android:dialogMessage="Station from where the journey leg starts"
+        android:defaultValue="Elmers End" />
+
+    <EditTextPreference
+        android:key="to"
+        android:title="To Station"
+        android:summary="Destination Station where the journey leg ends"
+        android:dialogTitle="Destination Station where the journey leg ends"
+        android:dialogMessage="Destination Station where the journey leg ends"
+        android:defaultValue="Reading" />
+
+    <EditTextPreference
+        android:key="poll_interval"
+        android:title="Data Check Interval"
+        android:summary="Periodic interval to check the information in minutes"
+        android:dialogTitle="Periodic interval to check the information in minutes"
+        android:dialogMessage="Periodic interval to check the information in minutes"
+        android:defaultValue="30" />
+
+</PreferenceScreen>

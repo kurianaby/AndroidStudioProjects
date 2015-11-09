@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- To DO
+  Increase the horizontal size of the buttons
+  Make use of the simpler linear layout found
+  in alt_activty_main.xml here
+ -->
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnStart"
+        android:text="Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/centerPoint" />
+
+    <TextView
+        android:id="@+id/centerPoint"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="100dip"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <Button
+        android:id="@+id/btnStop"
+        android:text="Stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/centerPoint"
+        android:clickable="false" />
+
+</RelativeLayout>

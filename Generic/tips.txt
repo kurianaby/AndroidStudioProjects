@@ -1,0 +1,2 @@
+Run an emulator with the proxy set via the commandline
+C:\Android\sdk\tools>emulator.exe -avd MyDevice -http-proxy proxy.capita.zone:80
