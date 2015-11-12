@@ -12,11 +12,18 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -115,14 +122,57 @@ public class MainActivity extends ActionBarActivity {
                     //this is the actual part that will call the webservice
                     androidHttpTransport.call(SOAP_ACTION, envelope);
                     Log.d("dump Request: " ,androidHttpTransport.requestDump);
-                    Log.d("dump response: " ,androidHttpTransport.responseDump);
+                    Log.d("dump response: ", androidHttpTransport.responseDump);
 
                     // Get the SoapResult from the envelope body.
                     SoapObject result = (SoapObject) envelope.bodyIn;
                     Log.i("result", result.toString());
 
+                    SoapObject GetStationBoardResult,trainServices, firstService, secondService;
+                    //String firstServiceETA;
+
+
                     if (result != null) {
                         //TODO Stuff with the result
+                        Log.i("Num Properties:", String.valueOf(((SoapObject) result.getProperty(0)).getPropertyCount()));
+
+                        if (result.hasProperty("GetStationBoardResult")) {
+                            GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
+                            if (GetStationBoardResult.hasProperty("trainServices")) {
+                                trainServices = (SoapObject) result.getPropertySafely("trainServices");
+                                for (int i = 0; i < trainServices.getPropertyCount() && i < 2; i++) {
+                                    Log.i("Service Details:", ((SoapObject) trainServices.getProperty(i)).toString());
+                                }
+
+                                try {
+
+
+                                    firstService = (SoapObject) trainServices.getProperty(0);
+                                    secondService = (SoapObject) trainServices.getProperty(1);
+                                    String strfirstServiceSTA = firstService.getPropertySafely("sta").toString();
+                                    String strfirstServiceETA = firstService.getPropertySafely("sta").toString();
+                                    String strsecondServiceSTA = secondService.getPropertySafely("sta").toString();
+                                    DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
+                                    Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
+                                    GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
+                                    calfirstServiceSTA.setTime(datfirstServiceSTA);
+                                    if (strfirstServiceSTA.compareTo("On time") != 0) {
+                                        if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
+                                            //TODO Shout it out
+                                        } else {
+                                            DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
+                                            Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
+                                            GregorianCalendar calfirstServiceETA = new GregorianCalendar();
+                                            calfirstServiceETA.setTime(datfirstServiceETA);
+                                            //TODO The rest of the stuff
+                                        }
+                                    }
+                                } catch (ParseException p) {
+
+                                }
+                            }
+                        }
+
                     } else {
                         Toast.makeText(getApplicationContext(), "No Response", Toast.LENGTH_LONG).show();
                     }
