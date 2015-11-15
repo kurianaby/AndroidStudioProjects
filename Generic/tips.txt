@@ -1,2 +1,5 @@
 Run an emulator with the proxy set via the commandline
 C:\Android\sdk\tools>emulator.exe -avd MyDevice -http-proxy proxy.capita.zone:80
+
+Proxying the github client
+http://stackoverflow.com/questions/16153450/github-windows-client-behind-proxy
