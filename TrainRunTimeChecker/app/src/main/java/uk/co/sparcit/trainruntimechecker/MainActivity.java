@@ -14,6 +14,7 @@ import android.widget.Toast;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 import org.kxml2.kdom.Element;
@@ -121,8 +122,8 @@ public class MainActivity extends ActionBarActivity {
 
                     //this is the actual part that will call the webservice
                     androidHttpTransport.call(SOAP_ACTION, envelope);
-                    Log.d("dump Request: " ,androidHttpTransport.requestDump);
-                    Log.d("dump response: ", androidHttpTransport.responseDump);
+                  //  Log.d("dump Request: " ,androidHttpTransport.requestDump);
+                  //  Log.d("dump response: ", androidHttpTransport.responseDump);
 
                     // Get the SoapResult from the envelope body.
                     SoapObject result = (SoapObject) envelope.bodyIn;
@@ -138,39 +139,54 @@ public class MainActivity extends ActionBarActivity {
 
                         if (result.hasProperty("GetStationBoardResult")) {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
-                            if (GetStationBoardResult.hasProperty("trainServices")) {
-                                trainServices = (SoapObject) result.getPropertySafely("trainServices");
-                                for (int i = 0; i < trainServices.getPropertyCount() && i < 2; i++) {
-                                    Log.i("Service Details:", ((SoapObject) trainServices.getProperty(i)).toString());
-                                }
+                            for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
+                                if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
+                                    trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
+                                    for (int j = 0; i < trainServices.getPropertyCount(); i++){
+                                        if (trainServices.getProperty(i) instanceof SoapPrimitive ) {
+                                            Log.i("Property Name :", ((SoapPrimitive) trainServices.getProperty(i)).getName());
+                                            Log.i("Property Namespace :", ((SoapPrimitive) trainServices.getProperty(i)).getNamespace());
+                                            Log.i("Property :", trainServices.getProperty(i).toString());
+                                        }
+                                        else if (trainServices.getProperty(i) instanceof SoapObject ){
+                                            firstService = (SoapObject) trainServices.getProperty(i);
+                                            Log.i("Property Name :", ((SoapObject)trainServices.getProperty(i)).getName());
+                                            Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(i)).getNamespace());
+                                            Log.i("Property :", trainServices.getProperty(i).toString());
 
-                                try {
+                                            if (firstService.getProperty(0) instanceof SoapPrimitive ) {
+                                                try {
 
+                                                    String strfirstServiceSTA = firstService.getProperty(0).toString();
+                                                    String strfirstServiceETA = firstService.getProperty(1).toString();
+                                                    Log.i("STA :", strfirstServiceSTA);
+                                                    Log.i("ETA :", strfirstServiceETA);
+                                                   // String strsecondServiceSTA = secondService.getPropertySafely("sta").toString();
+                                                    DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
+                                                    Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
+                                                    GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
+                                                    calfirstServiceSTA.setTime(datfirstServiceSTA);
+                                                    if (strfirstServiceSTA.compareTo("On time") != 0) {
+                                                        if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
+                                                            //TODO Shout it out
+                                                        } else {
+                                                            DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
+                                                            Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
+                                                            GregorianCalendar calfirstServiceETA = new GregorianCalendar();
+                                                            calfirstServiceETA.setTime(datfirstServiceETA);
+                                                            //TODO The rest of the stuff
+                                                        }
+                                                    }
+                                                } catch (ParseException p) {
 
-                                    firstService = (SoapObject) trainServices.getProperty(0);
-                                    secondService = (SoapObject) trainServices.getProperty(1);
-                                    String strfirstServiceSTA = firstService.getPropertySafely("sta").toString();
-                                    String strfirstServiceETA = firstService.getPropertySafely("sta").toString();
-                                    String strsecondServiceSTA = secondService.getPropertySafely("sta").toString();
-                                    DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
-                                    Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
-                                    GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
-                                    calfirstServiceSTA.setTime(datfirstServiceSTA);
-                                    if (strfirstServiceSTA.compareTo("On time") != 0) {
-                                        if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
-                                            //TODO Shout it out
-                                        } else {
-                                            DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
-                                            Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
-                                            GregorianCalendar calfirstServiceETA = new GregorianCalendar();
-                                            calfirstServiceETA.setTime(datfirstServiceETA);
-                                            //TODO The rest of the stuff
+                                                }
+                                            }
                                         }
                                     }
-                                } catch (ParseException p) {
-
                                 }
+
                             }
+
                         }
 
                     } else {
