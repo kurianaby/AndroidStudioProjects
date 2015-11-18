@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -134,25 +135,18 @@ public class MainActivity extends ActionBarActivity {
 
 
                     if (result != null) {
-                        //TODO Stuff with the result
-                        Log.i("Num Properties:", String.valueOf(((SoapObject) result.getProperty(0)).getPropertyCount()));
-
+                        //TODO see if other soap objects can be traversed by using hasProperty as well
                         if (result.hasProperty("GetStationBoardResult")) {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
                             for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
                                 if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
                                     trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
-                                    for (int j = 0; i < trainServices.getPropertyCount(); i++){
-                                        if (trainServices.getProperty(i) instanceof SoapPrimitive ) {
-                                            Log.i("Property Name :", ((SoapPrimitive) trainServices.getProperty(i)).getName());
-                                            Log.i("Property Namespace :", ((SoapPrimitive) trainServices.getProperty(i)).getNamespace());
-                                            Log.i("Property :", trainServices.getProperty(i).toString());
-                                        }
-                                        else if (trainServices.getProperty(i) instanceof SoapObject ){
-                                            firstService = (SoapObject) trainServices.getProperty(i);
-                                            Log.i("Property Name :", ((SoapObject)trainServices.getProperty(i)).getName());
-                                            Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(i)).getNamespace());
-                                            Log.i("Property :", trainServices.getProperty(i).toString());
+                                    for (int j = 0; j < trainServices.getPropertyCount(); j++){
+                                        if (trainServices.getProperty(j) instanceof SoapObject ){
+                                            firstService = (SoapObject) trainServices.getProperty(j);
+                                            Log.i("Property Name :", ((SoapObject)trainServices.getProperty(j)).getName());
+                                            Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(j)).getNamespace());
+                                            Log.i("Property :", trainServices.getProperty(j).toString());
 
                                             if (firstService.getProperty(0) instanceof SoapPrimitive ) {
                                                 try {
@@ -168,12 +162,17 @@ public class MainActivity extends ActionBarActivity {
                                                     calfirstServiceSTA.setTime(datfirstServiceSTA);
                                                     if (strfirstServiceSTA.compareTo("On time") != 0) {
                                                         if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
-                                                            //TODO Shout it out
+                                                            //TODO Shout it out and log it
                                                         } else {
                                                             DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
                                                             Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
                                                             GregorianCalendar calfirstServiceETA = new GregorianCalendar();
                                                             calfirstServiceETA.setTime(datfirstServiceETA);
+                                                            if (getDateDiff(calfirstServiceSTA.getTime(),calfirstServiceETA.getTime(),TimeUnit.MINUTES)> 25l)
+                                                            {
+                                                                //TODO Shout it out and log it
+                                                            }
+
                                                             //TODO The rest of the stuff
                                                         }
                                                     }
@@ -198,5 +197,17 @@ public class MainActivity extends ActionBarActivity {
             }
         }).start();
 
+    }
+
+    /**
+     * Get a diff between two dates
+     * @param date1 the oldest date
+     * @param date2 the newest date
+     * @param timeUnit the unit in which you want the diff
+     * @return the diff value, in the provided unit
+     */
+    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMillies = date2.getTime() - date1.getTime();
+        return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
     }
 }
