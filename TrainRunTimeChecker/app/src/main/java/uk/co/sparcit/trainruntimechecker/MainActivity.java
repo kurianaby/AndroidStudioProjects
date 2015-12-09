@@ -1,9 +1,12 @@
 package uk.co.sparcit.trainruntimechecker;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 //import android.app.ActionBar;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,7 +15,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
@@ -162,7 +164,8 @@ public class MainActivity extends ActionBarActivity {
                                                     calfirstServiceSTA.setTime(datfirstServiceSTA);
                                                     if (strfirstServiceSTA.compareTo("On time") != 0) {
                                                         if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
-                                                            //TODO Shout it out and log it
+                                                            //TODO Extract To, From, Time, ,Cancelled to tranmsit to SQLlite DB
+                                                            //TODO Extract To, Time, ,Cancelled to tranmsit to Notification
                                                         } else {
                                                             DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
                                                             Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
@@ -170,7 +173,8 @@ public class MainActivity extends ActionBarActivity {
                                                             calfirstServiceETA.setTime(datfirstServiceETA);
                                                             if (getDateDiff(calfirstServiceSTA.getTime(),calfirstServiceETA.getTime(),TimeUnit.MINUTES)> 25l)
                                                             {
-                                                                //TODO Shout it out and log it
+                                                                //TODO Extract To, From, Time,Delay, to tranmsit to SQLlite DB
+                                                                //TODO Extract To, Time, Delay, to tranmsit to Notification
                                                             }
 
                                                             //TODO The rest of the stuff
@@ -209,5 +213,29 @@ public class MainActivity extends ActionBarActivity {
     public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
         long diffInMillies = date2.getTime() - date1.getTime();
         return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
+    }
+
+    private static int notificationID = 123;
+    private static int numNotificationMsgs = 0;
+    /**
+     * Display the notification
+     * @param notification
+     */
+    public void displayNotification(String notification){
+
+        // Invoking the default notification service
+            android.support.v4.app.NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_lightbulb_outline)
+                        .setContentTitle("Train Delayed or Cancelled")
+                        .setContentText(notification);
+        // Increase notification number every time a new notification arrives
+        mBuilder.setNumber(++numNotificationMsgs);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // notificationID allows you to update the notification later on.
+        mNotificationManager.notify(notificationID, mBuilder.build());
+
+
     }
 }
