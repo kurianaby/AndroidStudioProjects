@@ -1,6 +1,7 @@
 package uk.co.sparcit.trainruntimechecker;
 
 import android.content.ContentResolver;
+import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -15,7 +16,7 @@ import android.provider.BaseColumns;
  *              http://developer.android.com/training/basics/data-storage/databases.html
  *              http://www.vogella.com/tutorials/AndroidSQLite/article.html
  */
-public final class TrainDelayDBTableContract {
+public final class DBTableContract {
 
 
     public static final String AUTHORITY = "uk.co.sparcit.trainruntimechecker";
@@ -26,7 +27,7 @@ public final class TrainDelayDBTableContract {
 
     // To prevent someone from accidentally instantiating the contract class,
     // give it a private constructor.
-    private TrainDelayDBTableContract() {}
+    private DBTableContract() {}
 
     public static final class TrainDelayRec implements BaseColumns {
 
@@ -75,13 +76,24 @@ public final class TrainDelayDBTableContract {
          * The MIME type of {@link #CONTENT_URI} providing rows
          */
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE +
-                "/vnd.com.marylandtransitcommuters.agency";
+                "/vnd.uk.co.sparcit.trainruntimechecker.TrainDelays";
 
         /**
          * The MIME type of a {@link #CONTENT_URI} single row
          */
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE +
-                "/vnd.com.marylandtransitcommuters.agency";
+                "/vnd.uk.co.sparcit.trainruntimechecker.TrainDelays";
+
+
+        // used for the UriMatcher
+        private static final int DELAYS = 10;
+        private static final int DELAYS_ID = 20;
+
+        public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        static {
+            sURIMatcher.addURI(AUTHORITY, TABLE_NAME, DELAYS);
+            sURIMatcher.addURI(AUTHORITY, TABLE_NAME + "/#", DELAYS_ID);
+        }
 
         /**
          * SQL Statement to create the TrainDelays table

@@ -1,8 +1,10 @@
 package uk.co.sparcit.trainruntimechecker;
 
 import android.app.NotificationManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 //import android.app.ActionBar;
 import android.os.Bundle;
@@ -82,6 +84,8 @@ public class MainActivity extends ActionBarActivity {
 
             @Override
             public void run() {
+                final String CRS = "CHX";
+                final String filterCrs = "ELE";
                 String SOAP_ACTION = "http://thalesgroup.com/RTTI/2015-05-14/ldb/GetArrBoardWithDetails";
                 String NAMESPACE = "http://thalesgroup.com/RTTI/2015-05-14/ldb/";
                 String HEADERNAMESPACE = "http://thalesgroup.com/RTTI/2013-11-28/Token/types";
@@ -94,8 +98,8 @@ public class MainActivity extends ActionBarActivity {
                 SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
                 //Use this to add parameters
                 request.addProperty("numRows", "10");
-                request.addProperty("crs", "CHX");
-                request.addProperty("filterCrs", "ELE");
+                request.addProperty("crs", CRS);
+                request.addProperty("filterCrs", filterCrs);
                 request.addProperty("filterType", "from");
                 request.addProperty("timeOffset", "0");
                 request.addProperty("timeWindow", "120");
@@ -133,13 +137,18 @@ public class MainActivity extends ActionBarActivity {
                     Log.i("result", result.toString());
 
                     SoapObject GetStationBoardResult,trainServices, firstService, secondService;
-                    //String firstServiceETA;
+                    String generatedAt = null;
+                    final int YESCANCELLED = 1;  //https://www.sqlite.org/datatype3.html sqlite boolean
+                    final int NOTCANCELLED = 0;
+                    Uri URIfromInsert;
 
 
                     if (result != null) {
                         //TODO see if other soap objects can be traversed by using hasProperty as well
                         if (result.hasProperty("GetStationBoardResult")) {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
+                            if (GetStationBoardResult.getProperty(0) instanceof SoapPrimitive )
+                                generatedAt = GetStationBoardResult.getProperty(0).toString();
                             for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
                                 if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
                                     trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
@@ -164,7 +173,14 @@ public class MainActivity extends ActionBarActivity {
                                                     calfirstServiceSTA.setTime(datfirstServiceSTA);
                                                     if (strfirstServiceSTA.compareTo("On time") != 0) {
                                                         if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
-                                                            //TODO Extract To, From, Time, ,Cancelled to tranmsit to SQLlite DB
+                                                            //TODO carry out a query first and if the fld_scheduled already exists then the current insert goes in as an update
+                                                            ContentValues newRow = new ContentValues();
+                                                            newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
+                                                            newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
+                                                            newRow.put(DBTableContract.TrainDelayRec.Fld_From, filterCrs);
+                                                            newRow.put(DBTableContract.TrainDelayRec.Fld_Scehduled, strfirstServiceSTA);
+                                                            newRow.put(DBTableContract.TrainDelayRec.Fld_Cancelled, YESCANCELLED);
+                                                            URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
                                                             //TODO Extract To, Time, ,Cancelled to tranmsit to Notification
                                                         } else {
                                                             DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
@@ -173,7 +189,15 @@ public class MainActivity extends ActionBarActivity {
                                                             calfirstServiceETA.setTime(datfirstServiceETA);
                                                             if (getDateDiff(calfirstServiceSTA.getTime(),calfirstServiceETA.getTime(),TimeUnit.MINUTES)> 25l)
                                                             {
-                                                                //TODO Extract To, From, Time,Delay, to tranmsit to SQLlite DB
+                                                                //TODO carry out a query first and if the fld_scheduled already exists then the current insert goes in as an update
+                                                                ContentValues newRow = new ContentValues();
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_From, filterCrs);
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_Scehduled, strfirstServiceSTA);
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_Expected, strfirstServiceETA);
+                                                                newRow.put(DBTableContract.TrainDelayRec.Fld_Cancelled, NOTCANCELLED);
+                                                                URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
                                                                 //TODO Extract To, Time, Delay, to tranmsit to Notification
                                                             }
 
