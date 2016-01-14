@@ -141,6 +141,7 @@ public class MainActivity extends ActionBarActivity {
                     final int YESCANCELLED = 1;  //https://www.sqlite.org/datatype3.html sqlite boolean
                     final int NOTCANCELLED = 0;
                     Uri URIfromInsert;
+                    int UpdatedRows;
 
 
                     if (result != null) {
@@ -173,23 +174,26 @@ public class MainActivity extends ActionBarActivity {
                                                     calfirstServiceSTA.setTime(datfirstServiceSTA);
                                                     if (strfirstServiceSTA.compareTo("On time") != 0) {
                                                         if (strfirstServiceSTA.compareTo("Cancelled") == 0) {
-                                                            //TODO carry out a query first and if the fld_scheduled already exists then the current insert goes in as an update
                                                             ContentValues newRow = new ContentValues();
                                                             newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
                                                             newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
                                                             newRow.put(DBTableContract.TrainDelayRec.Fld_From, filterCrs);
                                                             newRow.put(DBTableContract.TrainDelayRec.Fld_Scehduled, strfirstServiceSTA);
                                                             newRow.put(DBTableContract.TrainDelayRec.Fld_Cancelled, YESCANCELLED);
-                                                            URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
-                                                            //TODO Extract To, Time, ,Cancelled to tranmsit to Notification
+                                                            String selection = DBTableContract.TrainDelayRec.Fld_Scehduled +" = \"" + strfirstServiceSTA + "\"";
+                                                            //Check if row currently exists if so update otherwise insert
+                                                            UpdatedRows = getContentResolver().update(DBContentProvider.CONTENT_URI, newRow, selection, null); //http://stackoverflow.com/questions/14142908/insert-or-update-in-sqlite-and-android-using-the-database-query
+                                                            if (UpdatedRows  < 1)
+                                                                URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
+                                                            displayNotification(strfirstServiceSTA +" from "+ filterCrs +" to "+ CRS +" is Cancelled");
                                                         } else {
                                                             DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
                                                             Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
                                                             GregorianCalendar calfirstServiceETA = new GregorianCalendar();
                                                             calfirstServiceETA.setTime(datfirstServiceETA);
-                                                            if (getDateDiff(calfirstServiceSTA.getTime(),calfirstServiceETA.getTime(),TimeUnit.MINUTES)> 25l)
+                                                            long delay = getDateDiff(calfirstServiceSTA.getTime(),calfirstServiceETA.getTime(),TimeUnit.MINUTES);
+                                                            if (delay > 25l)
                                                             {
-                                                                //TODO carry out a query first and if the fld_scheduled already exists then the current insert goes in as an update
                                                                 ContentValues newRow = new ContentValues();
                                                                 newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
                                                                 newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
@@ -197,8 +201,13 @@ public class MainActivity extends ActionBarActivity {
                                                                 newRow.put(DBTableContract.TrainDelayRec.Fld_Scehduled, strfirstServiceSTA);
                                                                 newRow.put(DBTableContract.TrainDelayRec.Fld_Expected, strfirstServiceETA);
                                                                 newRow.put(DBTableContract.TrainDelayRec.Fld_Cancelled, NOTCANCELLED);
+                                                                String selection = DBTableContract.TrainDelayRec.Fld_Scehduled +" = \"" + strfirstServiceSTA + "\"";
+                                                                //Check if row currently exists if so update otherhwise insert
+                                                                UpdatedRows = getContentResolver().update(DBContentProvider.CONTENT_URI, newRow, selection, null); //http://stackoverflow.com/questions/14142908/insert-or-update-in-sqlite-and-android-using-the-database-query
+                                                                //http://www.techotopia.com/index.php/An_Android_Content_Provider_Tutorial
+                                                                if (UpdatedRows  < 1)
                                                                 URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
-                                                                //TODO Extract To, Time, Delay, to tranmsit to Notification
+                                                                displayNotification(strfirstServiceSTA +" from "+ filterCrs +" to "+ CRS +" is dealyed by "+ delay +" minutes ");
                                                             }
 
                                                             //TODO The rest of the stuff
