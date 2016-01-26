@@ -81,7 +81,10 @@ public class RunTimesCheckService extends IntentService {
                 final String param1 = intent.getStringExtra(EXTRA_PARAM1);
                 final String param2 = intent.getStringExtra(EXTRA_PARAM2);
                 //handleActionFoo(param1, param2);
-                makeSoapRequest("ELE","CHX");
+                do {
+                    makeSoapRequest("ELE","CHX");
+                }while(nxtAlarmTime != null);
+
             }
         }
     }
@@ -147,7 +150,7 @@ public class RunTimesCheckService extends IntentService {
                     SoapObject result = (SoapObject) envelope.bodyIn;
                     Log.i("result", result.toString());
 
-                    SoapObject GetStationBoardResult,trainServices, firstService, secondService;
+                    SoapObject GetStationBoardResult,trainServices, servicetoProcess, secondService;
                     String generatedAt = null;
 
 
@@ -157,32 +160,23 @@ public class RunTimesCheckService extends IntentService {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
                             if (GetStationBoardResult.getProperty(0) instanceof SoapPrimitive)
                                 generatedAt = GetStationBoardResult.getProperty(0).toString();
-                            for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
-                                if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
-                                    trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
-                                    //for (int j = 0; j < trainServices.getPropertyCount(); j++){
-                                    if (trainServices.getProperty(0) instanceof SoapObject ){
-                                        firstService = (SoapObject) trainServices.getProperty(0);
-                                        Log.i("Property Name :", ((SoapObject)trainServices.getProperty(0)).getName());
-                                        Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(0)).getNamespace());
-                                        Log.i("Property :", trainServices.getProperty(0).toString());
+                                for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
+                                    if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
+                                        trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
+                                        for (int j = 0; j < trainServices.getPropertyCount(); j++){
+                                        if (trainServices.getProperty(j) instanceof SoapObject ){
+                                            servicetoProcess = (SoapObject) trainServices.getProperty(j);
+                                            Log.i("Property Name :", ((SoapObject)trainServices.getProperty(j)).getName());
+                                            Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(j)).getNamespace());
+                                            Log.i("Property :", trainServices.getProperty(j).toString());
 
-                                        tmpAlarmTime = processTrainService(firstService, CRS, filterCrs);
-                                        if(nxtAlarmTime.after(tmpAlarmTime))
-                                            nxtAlarmTime = tmpAlarmTime;
-                                    }
-                                    if (trainServices.getProperty(1) instanceof SoapObject ){
-                                        secondService = (SoapObject) trainServices.getProperty(0);
-                                        Log.i("Property Name :", ((SoapObject)trainServices.getProperty(0)).getName());
-                                        Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(0)).getNamespace());
-                                        Log.i("Property :", trainServices.getProperty(0).toString());
+                                            tmpAlarmTime = processTrainService(servicetoProcess, CRS, filterCrs);
+                                            if(nxtAlarmTime.after(tmpAlarmTime))
+                                                nxtAlarmTime = tmpAlarmTime;
+                                        }
 
-                                        tmpAlarmTime = processTrainService(secondService, CRS, filterCrs);
-                                        if(nxtAlarmTime.after(tmpAlarmTime))
-                                            nxtAlarmTime = tmpAlarmTime;
-                                    }
-                                    //}
                                 }
+                                    }
 
                             }
 
@@ -240,9 +234,10 @@ public class RunTimesCheckService extends IntentService {
                      String selection = DBTableContract.TrainDelayRec.Fld_Scehduled + " = \"" + strfirstServiceSTA + "\"";
                      //Check if row currently exists if so update otherwise insert
                      UpdatedRows = getContentResolver().update(DBContentProvider.CONTENT_URI, newRow, selection, null); //http://stackoverflow.com/questions/14142908/insert-or-update-in-sqlite-and-android-using-the-database-query
-                     if (UpdatedRows < 1)
+                     if (UpdatedRows < 1) {
                          URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
-                     displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Cancelled");
+                         displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Cancelled");
+                     }
                  } else {
                      DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
                      Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
@@ -261,9 +256,10 @@ public class RunTimesCheckService extends IntentService {
                          //Check if row currently exists if so update otherhwise insert
                          UpdatedRows = getContentResolver().update(DBContentProvider.CONTENT_URI, newRow, selection, null); //http://stackoverflow.com/questions/14142908/insert-or-update-in-sqlite-and-android-using-the-database-query
                          //http://www.techotopia.com/index.php/An_Android_Content_Provider_Tutorial
-                         if (UpdatedRows < 1)
+                         if (UpdatedRows < 1){
                              URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
-                         displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is dealyed by " + delay + " minutes ");
+                            displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is delayed by " + delay + " minutes ");
+                         }
                      }
                      //if there is yet 2+ minutes to the ETA
                      if (getDateDiff(new GregorianCalendar().getTime(), calfirstServiceETA.getTime(), TimeUnit.MINUTES) > 2l)

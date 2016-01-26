@@ -45,7 +45,17 @@ public class MainActivity extends ActionBarActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Do something in response to button click
-                makeSoapRequest();
+                //makeSoapRequest();
+                /*Intent intent = new Intent(getApplicationContext(), RunTimesCheckService.class);
+                // add infos for the service which file to download and where to store
+                intent.putExtra(DownloadService.FILENAME, "index.html");
+                intent.putExtra(DownloadService.URL,
+                        "http://www.vogella.com/index.html");
+                startService(intent); */
+                //TODO https://guides.codepath.com/android/Starting-Background-Services - Use this as a reference
+                RunTimesCheckService.startActionTimeCheck(getApplicationContext(),"dummy1","dummy2");
+                Toast.makeText(getApplicationContext(), "Run Time Check Service Started", Toast.LENGTH_LONG).show();
+
             }
         });
 
