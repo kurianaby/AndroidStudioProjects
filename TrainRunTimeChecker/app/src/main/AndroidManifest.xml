@@ -26,6 +26,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="uk.co.sparcit.trainruntimechecker.MainActivity" />
         </activity>
+
         <provider
             android:name=".DBContentProvider"
             android:authorities="uk.co.sparcit.trainruntimechecker" >
@@ -35,6 +36,12 @@
             android:name=".RunTimesCheckService"
             android:exported="false" >
         </service>
+
+        <receiver
+            android:name=".AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
     </application>
 
 </manifest>

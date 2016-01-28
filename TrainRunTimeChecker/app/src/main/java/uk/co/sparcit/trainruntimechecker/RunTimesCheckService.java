@@ -1,11 +1,14 @@
 package uk.co.sparcit.trainruntimechecker;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -75,6 +78,9 @@ public class RunTimesCheckService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        PowerManager pm = (PowerManager) this.getApplication().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+        wl.acquire();
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
@@ -87,6 +93,7 @@ public class RunTimesCheckService extends IntentService {
 
             }
         }
+        wl.release();
     }
 
 
@@ -278,6 +285,8 @@ public class RunTimesCheckService extends IntentService {
      return tmpReturnTime;
  }
 
+
+
     /**
      * Get a diff between two dates
      * @param date1 the oldest date
@@ -313,4 +322,15 @@ public class RunTimesCheckService extends IntentService {
 
 
     }
+
+
+    public void schdeuleNextAlarm(Context context)
+    {
+        AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(context, AlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * 10, pi); // Millisec * Second * Minute
+    }
+
 }
+

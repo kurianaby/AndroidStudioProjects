@@ -53,8 +53,9 @@ public class MainActivity extends ActionBarActivity {
                         "http://www.vogella.com/index.html");
                 startService(intent); */
                 //TODO https://guides.codepath.com/android/Starting-Background-Services - Use this as a reference
-                RunTimesCheckService.startActionTimeCheck(getApplicationContext(),"dummy1","dummy2");
-                Toast.makeText(getApplicationContext(), "Run Time Check Service Started", Toast.LENGTH_LONG).show();
+                //ToDO http://stackoverflow.com/questions/4459058/alarm-manager-example
+                RunTimesCheckService.startActionTimeCheck(v.getContext(),"dummy1","dummy2");
+                Toast.makeText(v.getContext(), "Run Time Check Service Started", Toast.LENGTH_LONG).show();
 
             }
         });
