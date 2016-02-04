@@ -55,6 +55,7 @@ public class RunTimesCheckService extends IntentService {
     private static String strTokenValue = "3edf5ad4-1fb5-4c79-801b-cacf820cc182";
 
     private GregorianCalendar nxtAlarmTime;
+    AlarmReceiver aRec = new AlarmReceiver();
 
     /**
      * Starts this service to perform action Foo with the given parameters. If
@@ -87,9 +88,8 @@ public class RunTimesCheckService extends IntentService {
                 final String param1 = intent.getStringExtra(EXTRA_PARAM1);
                 final String param2 = intent.getStringExtra(EXTRA_PARAM2);
                 //handleActionFoo(param1, param2);
-                do {
-                    makeSoapRequest("ELE","CHX");
-                }while(nxtAlarmTime != null);
+                makeSoapRequest("ELE","CHX");
+
 
             }
         }
@@ -180,6 +180,14 @@ public class RunTimesCheckService extends IntentService {
                                             tmpAlarmTime = processTrainService(servicetoProcess, CRS, filterCrs);
                                             if(nxtAlarmTime.after(tmpAlarmTime))
                                                 nxtAlarmTime = tmpAlarmTime;
+                                            if (nxtAlarmTime != null)
+                                            {
+                                               // TODO check if the alarmreciever below is needed of if it will work with the class
+                                                //TODO leve declaration used now
+                                               // AlarmReceiver aRec = new AlarmReceiver();
+                                                aRec.schdeuleNextAlarm(this,nxtAlarmTime);
+                                            }
+
                                         }
 
                                 }
@@ -321,15 +329,6 @@ public class RunTimesCheckService extends IntentService {
         mNotificationManager.notify(notificationID, mBuilder.build());
 
 
-    }
-
-
-    public void schdeuleNextAlarm(Context context)
-    {
-        AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, AlarmReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * 10, pi); // Millisec * Second * Minute
     }
 
 }

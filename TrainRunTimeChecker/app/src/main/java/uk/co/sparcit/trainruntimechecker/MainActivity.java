@@ -56,6 +56,10 @@ public class MainActivity extends ActionBarActivity {
                 //ToDO http://stackoverflow.com/questions/4459058/alarm-manager-example
                 RunTimesCheckService.startActionTimeCheck(v.getContext(),"dummy1","dummy2");
                 Toast.makeText(v.getContext(), "Run Time Check Service Started", Toast.LENGTH_LONG).show();
+                btnStart.setEnabled(false);
+                if (!btnStop.isEnabled()){
+                    btnStop.setEnabled(true);
+                }
 
             }
         });
@@ -64,6 +68,12 @@ public class MainActivity extends ActionBarActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Do something in response to button click
+                AlarmReceiver ar = new AlarmReceiver();
+                ar.CancelAlarm(v.getContext());
+                btnStop.setEnabled(false);
+                if (!btnStart.isEnabled()){
+                    btnStart.setEnabled(true);
+                }
             }
         });
     }

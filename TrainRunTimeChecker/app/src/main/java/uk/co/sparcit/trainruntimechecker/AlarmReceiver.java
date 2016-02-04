@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.widget.Toast;
 
+import java.util.GregorianCalendar;
+
 public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
@@ -24,12 +26,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         wl.release();
     }
 
-    public void SetAlarm(Context context)
+
+    public void schdeuleNextAlarm(Context context, GregorianCalendar nxtAlarmTime)
     {
         AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent(context, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60 * 10, pi); // Millisec * Second * Minute
+        am.set(AlarmManager.RTC_WAKEUP, nxtAlarmTime.getTimeInMillis(), pi);
     }
 
     public void CancelAlarm(Context context)
