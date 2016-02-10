@@ -1,9 +1,7 @@
 package uk.co.sparcit.trainruntimechecker;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
@@ -24,7 +22,6 @@ import org.kxml2.kdom.Node;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
@@ -39,12 +36,12 @@ import java.util.concurrent.TimeUnit;
 public class RunTimesCheckService extends IntentService {
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "uk.co.sparcit.trainruntimechecker.action.FOO";
+    private static final String ACTION_TIMECHECK = "uk.co.sparcit.trainruntimechecker.action.TIMECHECK";
 
 
     // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "uk.co.sparcit.trainruntimechecker.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "uk.co.sparcit.trainruntimechecker.extra.PARAM2";
+    private static final String FROMLOC = "uk.co.sparcit.trainruntimechecker.extra.fromLocation";
+    private static final String TOLOC = "uk.co.sparcit.trainruntimechecker.extra.toLocation";
 
     private static String SOAP_ACTION = "http://thalesgroup.com/RTTI/2015-05-14/ldb/GetArrBoardWithDetails";
     private static String NAMESPACE = "http://thalesgroup.com/RTTI/2015-05-14/ldb/";
@@ -64,11 +61,11 @@ public class RunTimesCheckService extends IntentService {
      * @see IntentService
      */
     // TODO: Customize helper method
-    public static void startActionTimeCheck(Context context, String param1, String param2) {
+    public static void startActionTimeCheck(Context context, String fromLoc, String toLoc) {
         Intent intent = new Intent(context, RunTimesCheckService.class);
-        intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+        intent.setAction(ACTION_TIMECHECK);
+        intent.putExtra(FROMLOC, fromLoc);
+        intent.putExtra(TOLOC, toLoc);
         context.startService(intent);
     }
 
@@ -84,11 +81,11 @@ public class RunTimesCheckService extends IntentService {
         wl.acquire();
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
+            if (ACTION_TIMECHECK.equals(action)) {
+                final String from  = intent.getStringExtra(FROMLOC);
+                final String to = intent.getStringExtra(TOLOC);
                 //handleActionFoo(param1, param2);
-                makeSoapRequest("ELE","CHX");
+                makeSoapRequest(from,to);
 
 
             }
@@ -103,8 +100,8 @@ public class RunTimesCheckService extends IntentService {
      * @param to
      */
     public void makeSoapRequest(String from, String to){
-                final String CRS = to;
-                final String filterCrs = from;
+                String CRS = to;
+                String filterCrs = from;
                 String SOAP_ACTION = "http://thalesgroup.com/RTTI/2015-05-14/ldb/GetArrBoardWithDetails";
                 String NAMESPACE = "http://thalesgroup.com/RTTI/2015-05-14/ldb/";
                 String HEADERNAMESPACE = "http://thalesgroup.com/RTTI/2013-11-28/Token/types";

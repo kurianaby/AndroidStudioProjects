@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import java.util.GregorianCalendar;
@@ -18,9 +20,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        String fromLoc = sharedPref.getString("from", "ELE");
+        String toLoc = sharedPref.getString("to", "CHX");
 
         // Put here YOUR code.
-        RunTimesCheckService.startActionTimeCheck(context,"dummy1","dummy2");
+        RunTimesCheckService.startActionTimeCheck(context,fromLoc,toLoc);
         Toast.makeText(context, "Alarm !!!!!!!!!!", Toast.LENGTH_LONG).show(); // For example
 
         wl.release();
