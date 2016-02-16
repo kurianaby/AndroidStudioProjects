@@ -4,7 +4,9 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 //import android.app.ActionBar;
 import android.os.Bundle;
@@ -54,7 +56,12 @@ public class MainActivity extends ActionBarActivity {
                 startService(intent); */
                 //TODO https://guides.codepath.com/android/Starting-Background-Services - Use this as a reference
                 //ToDO http://stackoverflow.com/questions/4459058/alarm-manager-example
-                RunTimesCheckService.startActionTimeCheck(v.getContext(),"dummy1","dummy2");
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String fromLoc = sharedPref.getString("from", "ELE");
+                String toLoc = sharedPref.getString("to", "CHX");
+
+                // Put here YOUR code.
+                RunTimesCheckService.startActionTimeCheck(v.getContext(),fromLoc,toLoc);
                 Toast.makeText(v.getContext(), "Run Time Check Service Started", Toast.LENGTH_LONG).show();
                 btnStart.setEnabled(false);
                 if (!btnStop.isEnabled()){

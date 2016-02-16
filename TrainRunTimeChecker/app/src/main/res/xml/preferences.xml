@@ -6,7 +6,7 @@
         android:summary="Station from where the journey leg starts"
         android:dialogTitle="Station from where the journey leg starts"
         android:dialogMessage="Station from where the journey leg starts"
-        android:defaultValue="Elmers End" />
+        android:defaultValue="ELE" />
 
     <EditTextPreference
         android:key="to"
@@ -14,7 +14,7 @@
         android:summary="Destination Station where the journey leg ends"
         android:dialogTitle="Destination Station where the journey leg ends"
         android:dialogMessage="Destination Station where the journey leg ends"
-        android:defaultValue="Reading" />
+        android:defaultValue="CHX" />
 
     <EditTextPreference
         android:key="poll_interval"

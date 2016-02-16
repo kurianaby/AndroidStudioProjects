@@ -175,20 +175,20 @@ public class RunTimesCheckService extends IntentService {
                                             Log.i("Property :", trainServices.getProperty(j).toString());
 
                                             tmpAlarmTime = processTrainService(servicetoProcess, CRS, filterCrs);
-                                            if(nxtAlarmTime.after(tmpAlarmTime))
-                                                nxtAlarmTime = tmpAlarmTime;
-                                            if (nxtAlarmTime != null)
-                                            {
-                                               // TODO check if the alarmreciever below is needed of if it will work with the class
-                                                //TODO leve declaration used now
-                                               // AlarmReceiver aRec = new AlarmReceiver();
-                                                aRec.schdeuleNextAlarm(this,nxtAlarmTime);
+                                            if (tmpAlarmTime != null) {
+                                                if (nxtAlarmTime != null) {
+                                                    if (nxtAlarmTime.after(tmpAlarmTime))
+                                                        nxtAlarmTime = tmpAlarmTime;
+                                                } else
+                                                    nxtAlarmTime = tmpAlarmTime;
                                             }
-
                                         }
-
-                                }
                                     }
+                                    // TODO check if the alarmreciever below is needed of if it will work with the class
+                                    //TODO leve declaration used now
+                                    // AlarmReceiver aRec = new AlarmReceiver();
+                                    aRec.schdeuleNextAlarm(this,nxtAlarmTime);
+                                }
 
                             }
 
@@ -219,7 +219,7 @@ public class RunTimesCheckService extends IntentService {
      String generatedAt = null;
      final int YESCANCELLED = 1;  //https://www.sqlite.org/datatype3.html sqlite boolean
      final int NOTCANCELLED = 0;
-     final Long NOTIFICATIONCUTOFF = 25l;
+     final Long NOTIFICATIONCUTOFF = 5l;
      Uri URIfromInsert;
      int UpdatedRows;
      GregorianCalendar tmpReturnTime =  null;
@@ -256,7 +256,7 @@ public class RunTimesCheckService extends IntentService {
                      GregorianCalendar calfirstServiceETA = new GregorianCalendar();
                      calfirstServiceETA.setTime(datfirstServiceETA);
                      long delay = getDateDiff(calfirstServiceSTA.getTime(), calfirstServiceETA.getTime(), TimeUnit.MINUTES);
-                     if (delay > 25l) {
+                     if (delay > NOTIFICATIONCUTOFF) {
                          ContentValues newRow = new ContentValues();
                          newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
                          newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
