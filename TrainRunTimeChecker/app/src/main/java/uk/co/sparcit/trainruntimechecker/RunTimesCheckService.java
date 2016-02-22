@@ -22,6 +22,7 @@ import org.kxml2.kdom.Node;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
@@ -164,10 +165,21 @@ public class RunTimesCheckService extends IntentService {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
                             if (GetStationBoardResult.getProperty(0) instanceof SoapPrimitive)
                                 generatedAt = GetStationBoardResult.getProperty(0).toString();
-                                for (int i = 0; i < GetStationBoardResult.getPropertyCount(); i++) {
-                                    if (GetStationBoardResult.getProperty(i) instanceof SoapObject ){
-                                        trainServices = (SoapObject) GetStationBoardResult.getProperty(i);
-                                        for (int j = 0; j < trainServices.getPropertyCount(); j++){
+                               // Log.i("Generation time :", generatedAt);
+                            if (GetStationBoardResult.hasProperty("nrccMessages"))
+                            {
+                                Log.i("hasProperty:","nrccMessages");
+                            }
+                            if (GetStationBoardResult.hasProperty("trainServices"))
+                            {
+                                Log.i("hasProperty:","trainServices");
+                                trainServices = (SoapObject) GetStationBoardResult.getPropertySafely("trainServices");
+                                if (trainServices.hasProperty("service"))
+                                {
+                                    Log.i("hasProperty:","service");
+                                    servicetoProcess = (SoapObject) trainServices.getPropertySafely("service");
+
+                                    for (int j = 0; j < trainServices.getPropertyCount(); j++){
                                         if (trainServices.getProperty(j) instanceof SoapObject ){
                                             servicetoProcess = (SoapObject) trainServices.getProperty(j);
                                             Log.i("Property Name :", ((SoapObject)trainServices.getProperty(j)).getName());
@@ -188,9 +200,10 @@ public class RunTimesCheckService extends IntentService {
                                     //TODO leve declaration used now
                                     // AlarmReceiver aRec = new AlarmReceiver();
                                     aRec.schdeuleNextAlarm(this,nxtAlarmTime);
-                                }
 
+                                }
                             }
+
 
                         }
 
@@ -225,16 +238,20 @@ public class RunTimesCheckService extends IntentService {
      GregorianCalendar tmpReturnTime =  null;
 
      if (trainService.getProperty(0) instanceof SoapPrimitive ) {
-         try {
+
 
              String strfirstServiceSTA = trainService.getProperty(0).toString();
+             String []arrfirstServiceSTA = strfirstServiceSTA.split(":");
              String strfirstServiceETA = trainService.getProperty(1).toString();
+             String []arrfirstServiceETA = strfirstServiceETA.split(":");
              Log.i("STA :", strfirstServiceSTA);
              Log.i("ETA :", strfirstServiceETA);
-             DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
-             Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
+  //           DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
+  //           Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
              GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
-             calfirstServiceSTA.setTime(datfirstServiceSTA);
+             calfirstServiceSTA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceSTA[0]));
+             calfirstServiceSTA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceSTA[1]));
+ //            calfirstServiceSTA.setTime(datfirstServiceSTA);
              if (strfirstServiceETA.compareTo("On time") != 0) {
                  if (strfirstServiceETA.compareTo("Cancelled") == 0) {
                      ContentValues newRow = new ContentValues();
@@ -251,10 +268,12 @@ public class RunTimesCheckService extends IntentService {
                          displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Cancelled");
                      }
                  } else {
-                     DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
-                     Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
+//                     DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
+ //                    Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
                      GregorianCalendar calfirstServiceETA = new GregorianCalendar();
-                     calfirstServiceETA.setTime(datfirstServiceETA);
+                     calfirstServiceETA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceETA[0]));
+                     calfirstServiceETA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceETA[1]));
+//                     calfirstServiceETA.setTime(datfirstServiceETA);
                      long delay = getDateDiff(calfirstServiceSTA.getTime(), calfirstServiceETA.getTime(), TimeUnit.MINUTES);
                      if (delay > NOTIFICATIONCUTOFF) {
                          ContentValues newRow = new ContentValues();
@@ -279,13 +298,12 @@ public class RunTimesCheckService extends IntentService {
                  }
 
              }
+             Date nowTime = new GregorianCalendar().getTime();
+             Date recTime = calfirstServiceSTA.getTime();
              //if there is yet 2+ minutes to the STA
-             if (getDateDiff(new GregorianCalendar().getTime(), calfirstServiceSTA.getTime(), TimeUnit.MINUTES) > 2l)
+            long minDif = getDateDiff(nowTime, recTime, TimeUnit.MINUTES);
+             if (minDif > 2l)
                  return calfirstServiceSTA;
-
-         } catch (ParseException p) {
-
-         }
      }
      return tmpReturnTime;
  }
