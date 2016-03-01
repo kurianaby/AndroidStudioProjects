@@ -246,12 +246,9 @@ public class RunTimesCheckService extends IntentService {
              String []arrfirstServiceETA = strfirstServiceETA.split(":");
              Log.i("STA :", strfirstServiceSTA);
              Log.i("ETA :", strfirstServiceETA);
-  //           DateFormat dffirstServiceSTA = new SimpleDateFormat("hh:mm");
-  //           Date datfirstServiceSTA = dffirstServiceSTA.parse(strfirstServiceSTA);
              GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
              calfirstServiceSTA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceSTA[0]));
              calfirstServiceSTA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceSTA[1]));
- //            calfirstServiceSTA.setTime(datfirstServiceSTA);
              if (strfirstServiceETA.compareTo("On time") != 0) {
                  if (strfirstServiceETA.compareTo("Cancelled") == 0) {
                      ContentValues newRow = new ContentValues();
@@ -268,12 +265,9 @@ public class RunTimesCheckService extends IntentService {
                          displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Cancelled");
                      }
                  } else {
-//                     DateFormat dffirstServiceETA = new SimpleDateFormat("hh:mm");
- //                    Date datfirstServiceETA = dffirstServiceETA.parse(strfirstServiceETA);
                      GregorianCalendar calfirstServiceETA = new GregorianCalendar();
                      calfirstServiceETA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceETA[0]));
                      calfirstServiceETA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceETA[1]));
-//                     calfirstServiceETA.setTime(datfirstServiceETA);
                      long delay = getDateDiff(calfirstServiceSTA.getTime(), calfirstServiceETA.getTime(), TimeUnit.MINUTES);
                      if (delay > NOTIFICATIONCUTOFF) {
                          ContentValues newRow = new ContentValues();
