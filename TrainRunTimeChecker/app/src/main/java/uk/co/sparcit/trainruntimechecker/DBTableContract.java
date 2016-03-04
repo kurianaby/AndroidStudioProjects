@@ -98,7 +98,7 @@ public final class DBTableContract {
         /**
          * SQL Statement to create the TrainDelays table
          */
-        public static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + " ("
+        public static final String  CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "("
                 + _ID + " INTEGER PRIMARY KEY,"
                 + Fld_To + " TEXT,"
                 + Fld_From + " TEXT,"
