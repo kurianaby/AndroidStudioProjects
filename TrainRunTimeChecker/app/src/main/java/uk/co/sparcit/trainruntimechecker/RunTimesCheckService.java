@@ -85,9 +85,7 @@ public class RunTimesCheckService extends IntentService {
             if (ACTION_TIMECHECK.equals(action)) {
                 final String from  = intent.getStringExtra(FROMLOC);
                 final String to = intent.getStringExtra(TOLOC);
-                //handleActionFoo(param1, param2);
                 makeSoapRequest(from,to);
-
 
             }
         }
@@ -134,12 +132,12 @@ public class RunTimesCheckService extends IntentService {
                 h.addChild(Node.ELEMENT, TokenValue);
                 envelope.headerOut = new Element[1];
                 envelope.headerOut[0] = h;
-                Log.i("header", "" + envelope.headerOut[0].toString()); //TODO see what this does
+                Log.d("header", "" + envelope.headerOut[0].toString()); //TODO see what this does
 
 
                 //Set the soap request body
                 envelope.setOutputSoapObject(request);
-                Log.i("bodyout", "" + envelope.bodyOut.toString()); //TODO see what this does
+                Log.d("bodyout", "" + envelope.bodyOut.toString()); //TODO see what this does
                 envelope.dotNet = true;
 
                 try {
@@ -153,38 +151,34 @@ public class RunTimesCheckService extends IntentService {
 
                     // Get the SoapResult from the envelope body.
                     SoapObject result = (SoapObject) envelope.bodyIn;
-                    Log.i("result", result.toString());
+                    Log.d("result", result.toString());
 
                     SoapObject GetStationBoardResult,trainServices, servicetoProcess, secondService;
                     String generatedAt = null;
 
 
                     if (result != null) {
-                        //TODO see if other soap objects can be traversed by using hasProperty as well
                         if (result.hasProperty("GetStationBoardResult")) {
                             GetStationBoardResult = (SoapObject) result.getPropertySafely("GetStationBoardResult");
                             if (GetStationBoardResult.getProperty(0) instanceof SoapPrimitive)
                                 generatedAt = GetStationBoardResult.getProperty(0).toString();
-                               // Log.i("Generation time :", generatedAt);
                             if (GetStationBoardResult.hasProperty("nrccMessages"))
                             {
-                                Log.i("hasProperty:","nrccMessages");
+                                Log.d("hasProperty:","nrccMessages");
                             }
                             if (GetStationBoardResult.hasProperty("trainServices"))
                             {
-                                Log.i("hasProperty:","trainServices");
+                                Log.d("hasProperty:","trainServices");
                                 trainServices = (SoapObject) GetStationBoardResult.getPropertySafely("trainServices");
                                 if (trainServices.hasProperty("service"))
                                 {
-                                    Log.i("hasProperty:","service");
+                                    Log.d("hasProperty:","service");
                                     servicetoProcess = (SoapObject) trainServices.getPropertySafely("service");
 
                                     for (int j = 0; j < trainServices.getPropertyCount(); j++){
                                         if (trainServices.getProperty(j) instanceof SoapObject ){
                                             servicetoProcess = (SoapObject) trainServices.getProperty(j);
-                                            Log.i("Property Name :", ((SoapObject)trainServices.getProperty(j)).getName());
-                                            Log.i("Property Namespace :", ((SoapObject) trainServices.getProperty(j)).getNamespace());
-                                            Log.i("Property :", trainServices.getProperty(j).toString());
+                                            Log.d("Service Run Details:", trainServices.getProperty(j).toString());
 
                                             tmpAlarmTime = processTrainService(servicetoProcess, CRS, filterCrs);
                                             if (tmpAlarmTime != null) {
@@ -249,7 +243,7 @@ public class RunTimesCheckService extends IntentService {
              GregorianCalendar calfirstServiceSTA = new GregorianCalendar();
              calfirstServiceSTA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceSTA[0]));
              calfirstServiceSTA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceSTA[1]));
-             if (strfirstServiceETA.compareTo("On time") != 0) {
+              if (strfirstServiceETA.compareTo("On time") != 0) {
                  if (strfirstServiceETA.compareTo("Cancelled") == 0) {
                      ContentValues newRow = new ContentValues();
                      newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);

@@ -29,7 +29,7 @@ public class DBContentProvider extends ContentProvider{
     private static final int DELAYS = 10;
     private static final int DELAYS_ID = 20;
 
-    private static final String AUTHORITY = "uk.co.sparcit.trainruntimechecke";
+    private static final String AUTHORITY = "uk.co.sparcit.trainruntimechecker";
 
     private static final String BASE_PATH = "TrainDelays";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
