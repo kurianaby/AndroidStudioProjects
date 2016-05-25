@@ -39,8 +39,8 @@ public final class DBTableContract {
 
         //Field names in the table
         public static final String Fld_GeneratedAt = "GeneratedAt";
-        public static final String Fld_To = "To";
-        public static final String Fld_From = "From";
+        public static final String Fld_To =  "`" +"To" + "`" ;
+        public static final String Fld_From = "`" + "From" +  "`" ;
         public static final String Fld_Scehduled = "Scheduled";
         public static final String Fld_Expected = "Expected";
         public static final String Fld_Cancelled = "Cancelled";
@@ -98,10 +98,10 @@ public final class DBTableContract {
         /**
          * SQL Statement to create the TrainDelays table
          */
-        public static final String CREATE_TABLE = "CREATE TABLE if not exists" + TABLE_NAME + " ("
+        public static final String  CREATE_TABLE = "CREATE TABLE if not exists " + TABLE_NAME + "("
                 + _ID + " INTEGER PRIMARY KEY,"
                 + Fld_To + " TEXT,"
-                + Fld_From + " TEXT,"
+                +  Fld_From + " TEXT,"
                 + Fld_Scehduled + " TEXT,"
                 + Fld_Expected + " TEXT,"
                 + Fld_Cancelled + " TEXT,"

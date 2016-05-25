@@ -258,7 +258,22 @@ public class RunTimesCheckService extends IntentService {
                          URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
                          displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Cancelled");
                      }
-                 } else {
+                 }else if (strfirstServiceETA.compareTo("Delayed") == 0) {
+                      ContentValues newRow = new ContentValues();
+                      newRow.put(DBTableContract.TrainDelayRec.Fld_GeneratedAt, generatedAt);
+                      newRow.put(DBTableContract.TrainDelayRec.Fld_To, CRS);
+                      newRow.put(DBTableContract.TrainDelayRec.Fld_From, filterCrs);
+                      newRow.put(DBTableContract.TrainDelayRec.Fld_Scehduled, strfirstServiceSTA);
+                      newRow.put(DBTableContract.TrainDelayRec.Fld_Cancelled, NOTCANCELLED);
+                      String selection = DBTableContract.TrainDelayRec.Fld_Scehduled + " = \"" + strfirstServiceSTA + "\"";
+                      //Check if row currently exists if so update otherwise insert
+                      UpdatedRows = getContentResolver().update(DBContentProvider.CONTENT_URI, newRow, selection, null); //http://stackoverflow.com/questions/14142908/insert-or-update-in-sqlite-and-android-using-the-database-query
+                      if (UpdatedRows < 1) {
+                          URIfromInsert = getContentResolver().insert(DBContentProvider.CONTENT_URI, newRow);
+                          displayNotification(strfirstServiceSTA + " from " + filterCrs + " to " + CRS + " is Delayed");
+                      }
+                  }
+                 else {
                      GregorianCalendar calfirstServiceETA = new GregorianCalendar();
                      calfirstServiceETA.set(Calendar.HOUR_OF_DAY,Integer.parseInt(arrfirstServiceETA[0]));
                      calfirstServiceETA.set(Calendar.MINUTE, Integer.parseInt(arrfirstServiceETA[1]));
